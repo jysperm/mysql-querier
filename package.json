@@ -1,0 +1,36 @@
+{
+  "name": "mysql-querier",
+  "version": "0.1.0",
+  "description": "Use simple JSON to query from MySQL, and prevent SQL-injection attacks",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jysperm/mysql-querier.git"
+  },
+  "contributors": [
+    {
+      "name": "jysperm",
+      "email": "jysperm@gmail.com",
+      "url": "https://jysperm.me"
+    }
+  ],
+  "scripts": {
+    "test": "./node_modules/.bin/gulp test"
+  },
+  "dependencies": {
+    "async": "^0.9.0",
+    "coffee-script": "^1.7.1",
+    "q": "^1.2.0",
+    "underscore": "^1.7.0"
+  },
+  "devDependencies": {
+    "chai": "^1.9.2",
+    "coffee-coverage": "0.4.2",
+    "endokken": "lee-dohm/endokken#v0.2.0",
+    "gulp": "^3.8.11",
+    "gulp-rsync": "^0.0.5",
+    "gulp-shell": "^0.3.0",
+    "mocha": "^2.0.0",
+    "mocha-reporter-cov-summary": "^0.1.0"
+  }
+}

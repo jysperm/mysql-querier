@@ -1,0 +1,8 @@
+/node_modules
+/coverage-reporter.html
+/npm-debug.log
+/.idea
+*~
+.DS_Store
+/api.json
+/docs
