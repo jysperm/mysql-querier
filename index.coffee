@@ -2,6 +2,8 @@ _ = require 'underscore'
 moment = require 'moment'
 
 module.exports = (table, schema, options) ->
+  options = _.extend {}, options, table: table
+
   return (query) ->
     where_sql = ''
 
@@ -92,11 +94,11 @@ module.exports = (table, schema, options) ->
         unless _.isEmpty conditions
           whereAnd conditions.join ' OR '
 
-    order_by_sql = orderByClause query, options
-    limit_sql = limitClause query, options
-
     return _.compact([
-      "SELECT * FROM #{escapeIdentifier table}", where_sql, order_by_sql, limit_sql
+      selectClause query, options
+      where_sql
+      orderByClause query, options
+      limitClause query, options
     ]).join ' '
 
 escapeIdentifier = (value) ->
@@ -144,33 +146,36 @@ splitToArray = (value, filter) ->
 
   return _.compact values.map filter
 
-orderByClause = ({order_by}, options) ->
-  options ?=
-    sortable: []
+selectClause = (query, {table, fields}) ->
+  table = escapeIdentifier table
 
+  if fields?.length > 0
+    fields = fields.map escapeIdentifier
+    return "SELECT #{fields.join ', '} FROM #{table}"
+  else
+    return "SELECT * FROM #{table}"
+
+orderByClause = ({order_by}, {sortable}) ->
   if order_by and order_by[... 1] in ['+', '-']
     desc = order_by[... 1] == '-'
     order_field = order_by[1 ...]
   else
     order_field = order_by
 
-  if order_field in (options.sortable ? [])
+  if order_field in (sortable ? [])
     return "ORDER BY #{escapeIdentifier order_field}#{if desc then ' DESC' else ''}"
   else
     return ''
 
-limitClause = ({limit, offset}, options) ->
-  options ?=
-    max_limit: Infinity
-
+limitClause = ({limit, offset}, {max_limit}) ->
   limit_sql = ''
   offset_sql = ''
 
   if _.isFinite limit
-    limit = Math.min options.max_limit, parseInt limit
+    limit = Math.min (max_limit ? Infinity), parseInt limit
     limit_sql = "LIMIT #{escape limit}"
-  else if options.max_limit < Infinity
-    limit_sql = "LIMIT #{escape options.max_limit}"
+  else if max_limit and max_limit < Infinity
+    limit_sql = "LIMIT #{escape max_limit}"
 
   if _.isFinite offset
     offset_sql = "OFFSET #{escape parseInt offset}"

@@ -187,3 +187,18 @@ Query:
     {}
     {"limit": 50}
     // SELECT * FROM `users` LIMIT 30
+
+## Fields
+
+Querier:
+
+    userQuerier = querier 'users',
+      role:
+        enum: ['admin', 'user']
+    ,
+      fields: ['username', 'role']
+
+Query:
+
+    {}
+    // SELECT `username`, `role` FROM `users`

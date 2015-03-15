@@ -178,3 +178,12 @@ describe 'querier', ->
     test
       limit: 50
     , 'SELECT * FROM `users` LIMIT 30'
+
+  it 'fields', ->
+    test = querierTester 'users',
+      role:
+        enum: ['admin', 'user']
+    ,
+      fields: ['username', 'role']
+
+    test {}, 'SELECT `username`, `role` FROM `users`'
