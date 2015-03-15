@@ -169,3 +169,20 @@ Query:
     // SELECT * FROM `users`
 
 ## Pagination
+
+Querier:
+
+    userQuerier = querier 'users',
+      role:
+        enum: ['admin', 'user']
+    ,
+      max_limit: 30
+
+Query:
+
+    {"limit": 10}
+    // SELECT * FROM `users` LIMIT 10
+    {"limit": 10, "offset": 20}
+    // SELECT * FROM `users` LIMIT 10 OFFSET 20
+    {"limit": 50}
+    // SELECT * FROM `users` LIMIT 30

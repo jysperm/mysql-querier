@@ -157,4 +157,22 @@ describe 'querier', ->
       order_by: 'role'
     , 'SELECT * FROM `users`'
 
-  it 'pagination'
+  it 'pagination', ->
+    test = querierTester 'users',
+      role:
+        enum: ['admin', 'user']
+    ,
+      max_limit: 30
+
+    test
+      limit: 10
+    , 'SELECT * FROM `users` LIMIT 10'
+
+    test
+      limit: 10
+      offset: 20
+    , 'SELECT * FROM `users` LIMIT 10 OFFSET 20'
+
+    test
+      limit: 50
+    , 'SELECT * FROM `users` LIMIT 30'

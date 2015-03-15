@@ -16,6 +16,24 @@ module.exports = (table, schema, options) ->
     else
       order_by_sql = ''
 
+    limit_sql = ''
+
+    if _.isFinite query.limit
+      limit = Math.min (options?.max_limit ? Infinity), parseInt query.limit
+      limit_sql = "LIMIT #{escape limit}"
+    else if options?.limit and options.max_limit < Infinity
+      limit_sql = "LIMIT #{escape options.limit}"
+    else
+      limit_sql = ''
+
+    if _.isFinite query.offset
+      offset = parseInt query.offset
+
+      if limit_sql
+        limit_sql = "#{limit_sql} OFFSET #{escape offset}"
+      else
+        limit_sql = "OFFSET #{escape offset}"
+
     whereAnd = (condition) ->
       if where_sql
         where_sql = "#{where_sql} AND (#{condition})"
@@ -118,10 +136,8 @@ module.exports = (table, schema, options) ->
         unless _.isEmpty conditions
           whereAnd conditions.join ' OR '
 
-      # pagination
-
     return _.compact([
-      "SELECT * FROM #{escapeIdentifier table}", where_sql, order_by_sql
+      "SELECT * FROM #{escapeIdentifier table}", where_sql, order_by_sql, limit_sql
     ]).join ' '
 
 escapeIdentifier = (value) ->
