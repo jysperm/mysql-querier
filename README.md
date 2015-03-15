@@ -46,7 +46,7 @@ Query:
     {"user_id": "42"}
     // SELECT * FROM `users` WHERE (`user_id` = 42)
     {"user_id": "jysperm"}
-    // ignored, SELECT * FROM `users`
+    // SELECT * FROM `users`
 
 Querier:
 
@@ -135,4 +135,17 @@ Query:
     {"created_at": "invalid~date"}
     {}
     // SELECT * FROM `users`
+
+## Search
+
+Querier:
+
+    userQuerier = querier 'users',
+      search:
+        search: ['username', 'bio']
+
+Query:
+
+    {"search": "jysperm"}
+    // SELECT * FROM `users` WHERE (`username` LIKE '%jysperm%' OR `bio` LIKE '%jysperm%')
 

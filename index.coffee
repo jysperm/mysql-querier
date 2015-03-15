@@ -100,7 +100,13 @@ module.exports = (table, schema, options) ->
         else if to
           whereAnd "#{escaped_field} =< #{to}"
 
-      # search
+      else if definition.search
+        conditions = definition.search.map (field) ->
+          return "#{escapeIdentifier field} LIKE #{escape "%#{value}%"}"
+
+        unless _.isEmpty conditions
+          whereAnd conditions.join ' OR '
+
       # sort
       # pagination
 
@@ -113,36 +119,30 @@ escape = (value) ->
   if value in [null, undefined]
     return 'NULL'
 
-  if _.isBoolean value
+  else if _.isString value
+    escaped = value.replace /[\0\n\r\b\t\\\'\"\x1a]/g, (char) ->
+      switch char
+        when '\0' then return '\\0'
+        when '\n' then return '\\n'
+        when '\r' then return '\\r'
+        when '\b' then return '\\b'
+        when '\t' then return '\\t'
+        when '\x1a' then return '\\Z'
+        else return '\\' + char
+
+    return "'#{escaped}'"
+
+  else if _.isNumber value
+    return value.toFixed()
+
+  else if _.isBoolean value
     if value
       return 'TRUE'
     else
       return 'FALSE'
 
-  if _.isNumber value
-    return value.toFixed()
-
-  if _.isDate value
+  else if _.isDate value
     return escape moment(value).format 'YYYY-MM-DD HH:mm:ss.SSS'
 
-  if _.isString value
-    escaped = value.replace /[\0\n\r\b\t\\\'\"\x1a]/g, (char) ->
-      switch char
-        when '\0'
-          return '\\0'
-        when '\n'
-          return '\\n'
-        when '\r'
-          return '\\r'
-        when '\b'
-          return '\\b'
-        when '\t'
-          return '\\t'
-        when '\x1a'
-          return '\\Z'
-        else
-          return '\\' + char
-
-    return "'#{escaped}'"
-
-  throw new Error "Can't escape #{value}"
+  else
+    throw new Error "Can't escape #{value}"

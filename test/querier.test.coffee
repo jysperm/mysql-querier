@@ -128,7 +128,14 @@ describe 'querier', ->
 
     test {}, 'SELECT * FROM `users`'
 
-  it 'search'
+  it 'search', ->
+    test = querierTester 'users',
+      search:
+        search: ['username', 'bio']
+
+    test
+      search: 'jysperm'
+    , "SELECT * FROM `users` WHERE (`username` LIKE '%jysperm%' OR `bio` LIKE '%jysperm%')"
 
   it 'sort'
 
