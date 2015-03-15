@@ -19,19 +19,31 @@ module.exports = (table, schema, options) ->
         return
 
       if definition.bool
-        whereAnd "`#{field}` = #{escape !!value}"
+        if value in ['true', 'false']
+          value = value == 'true'
+        else if value in ['TRUE', 'FALSE']
+          value = value == 'TRUE'
+        else
+          value = !! value
+
+        whereAnd "`#{field}` = #{escape value}"
 
       else if definition.number
         if _.isFinite value
-          whereAnd "`#{field}` = #{escape value}"
+          whereAnd "`#{field}` = #{escape parseInt value}"
 
       else if definition.enum
         if value in definition.enum
           whereAnd "`#{field}` = #{escape value}"
         else if definition.multi
-          values = _.compact value.split(',').map (value) ->
+          if _.isArray value
+            values = value
+          else
+            values = value.split(',').map (value) -> value.trim()
+
+          values = _.compact values.map (value) ->
             if value in definition.enum
-              return escape value.trim()
+              return escape value
             else
               return null
 
@@ -41,6 +53,8 @@ module.exports = (table, schema, options) ->
       # date
       # enum_sql
       # search
+      # sort
+      # pagination
 
     return "SELECT * FROM #{escapeIdentifier table} #{where_sql}".trim()
 
@@ -53,9 +67,9 @@ escape = (value) ->
 
   if _.isBoolean value
     if value
-      return 'true'
+      return 'TRUE'
     else
-      return 'false'
+      return 'FALSE'
 
   if _.isNumber value
     return value.toFixed()
