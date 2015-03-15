@@ -1,7 +1,7 @@
 # mysql-querier
 Use simple JSON to query from MySQL, and prevent SQL-injection attacks
 
-## Usages
+## Example
 
     querier = require 'mysql-querier'
 
@@ -149,3 +149,23 @@ Query:
     {"search": "jysperm"}
     // SELECT * FROM `users` WHERE (`username` LIKE '%jysperm%' OR `bio` LIKE '%jysperm%')
 
+## Sort
+
+Querier:
+
+    userQuerier = querier 'users',
+      role:
+        enum: ['admin', 'user']
+    ,
+      sortable: ['followers', 'user_id']
+
+Query:
+
+    {"role": "admin", "order_by": "followers"}
+    // SELECT * FROM `users` WHERE (`role` = 'admin') ORDER BY `followers`
+    {"order_by": "-user_id"}
+    // SELECT * FROM `users` ORDER BY `user_id` DESC
+    {"order_by": "role"}
+    // SELECT * FROM `users`
+
+## Pagination

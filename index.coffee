@@ -5,6 +5,17 @@ module.exports = (table, schema, options) ->
   return (query) ->
     where_sql = ''
 
+    if query.order_by and query.order_by[... 1] in ['+', '-']
+      desc = query.order_by[... 1] == '-'
+      order_field = query.order_by[1 ...]
+    else
+      order_field = query.order_by
+
+    if order_field in (options?.sortable ? [])
+      order_by_sql = "ORDER BY #{escapeIdentifier order_field}#{if desc then ' DESC' else ''}"
+    else
+      order_by_sql = ''
+
     whereAnd = (condition) ->
       if where_sql
         where_sql = "#{where_sql} AND (#{condition})"
@@ -107,10 +118,11 @@ module.exports = (table, schema, options) ->
         unless _.isEmpty conditions
           whereAnd conditions.join ' OR '
 
-      # sort
       # pagination
 
-    return "SELECT * FROM #{escapeIdentifier table} #{where_sql}".trim()
+    return _.compact([
+      "SELECT * FROM #{escapeIdentifier table}", where_sql, order_by_sql
+    ]).join ' '
 
 escapeIdentifier = (value) ->
   return "`#{value.replace(/`/g, '``')}`"

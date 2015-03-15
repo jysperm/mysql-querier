@@ -137,6 +137,24 @@ describe 'querier', ->
       search: 'jysperm'
     , "SELECT * FROM `users` WHERE (`username` LIKE '%jysperm%' OR `bio` LIKE '%jysperm%')"
 
-  it 'sort'
+  it 'sort', ->
+    test = querierTester 'users',
+      role:
+        enum: ['admin', 'user']
+    ,
+      sortable: ['followers', 'user_id']
+
+    test
+      role: 'admin'
+      order_by: 'followers'
+    , "SELECT * FROM `users` WHERE (`role` = 'admin') ORDER BY `followers`"
+
+    test
+      order_by: '-user_id'
+    , 'SELECT * FROM `users` ORDER BY `user_id` DESC'
+
+    test
+      order_by: 'role'
+    , 'SELECT * FROM `users`'
 
   it 'pagination'
