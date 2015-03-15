@@ -12,6 +12,7 @@ module.exports = (table, schema, options) ->
         where_sql = "WHERE (#{condition})"
 
     _.keys(schema).forEach (field) ->
+      escaped_field = escapeIdentifier field
       definition = schema[field]
       value = query[field]
 
@@ -19,11 +20,11 @@ module.exports = (table, schema, options) ->
         return
 
       if definition.string
-        whereAnd "`#{field}` = #{escape value}"
+        whereAnd "#{escaped_field} = #{escape value}"
 
       else if definition.number
         if _.isFinite value
-          whereAnd "`#{field}` = #{escape parseInt value}"
+          whereAnd "#{escaped_field} = #{escape parseInt value}"
         else if definition.multi
           if _.isArray value
             values = value
@@ -37,7 +38,7 @@ module.exports = (table, schema, options) ->
               return null
 
           unless _.isEmpty values
-            whereAnd "`#{field}` IN (#{values.join ', '})"
+            whereAnd "#{escaped_field} IN (#{values.join ', '})"
 
       else if definition.bool
         if value in ['true', 'false']
@@ -47,11 +48,11 @@ module.exports = (table, schema, options) ->
         else
           value = !! value
 
-        whereAnd "`#{field}` = #{escape value}"
+        whereAnd "#{escaped_field} = #{escape value}"
 
       else if definition.enum
         if value in definition.enum
-          whereAnd "`#{field}` = #{escape value}"
+          whereAnd "#{escaped_field} = #{escape value}"
         else if definition.multi
           if _.isArray value
             values = value
@@ -65,7 +66,7 @@ module.exports = (table, schema, options) ->
               return null
 
           unless _.isEmpty values
-            whereAnd "`#{field}` IN (#{values.join ', '})"
+            whereAnd "#{escaped_field} IN (#{values.join ', '})"
 
       else if definition.enum_sql
         if value in _.keys definition.enum_sql
@@ -85,7 +86,20 @@ module.exports = (table, schema, options) ->
           unless _.isEmpty conditions
             whereAnd conditions.join ' OR '
 
-      # date
+      else if definition.date
+        [from, to] = (value ? '').split('~').map (date) ->
+          if Date.parse date
+            return escape new Date date
+          else
+            return null
+
+        if from and to
+          whereAnd "#{escaped_field} BETWEEN #{from} AND #{to}"
+        else if from
+          whereAnd "#{escaped_field} >= #{from}"
+        else if to
+          whereAnd "#{escaped_field} =< #{to}"
+
       # search
       # sort
       # pagination
@@ -109,7 +123,7 @@ escape = (value) ->
     return value.toFixed()
 
   if _.isDate value
-    return moment(value).format 'YYYY-MM-DD HH:mm:ss.SSS'
+    return escape moment(value).format 'YYYY-MM-DD HH:mm:ss.SSS'
 
   if _.isString value
     escaped = value.replace /[\0\n\r\b\t\\\'\"\x1a]/g, (char) ->

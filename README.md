@@ -43,7 +43,6 @@ Querier:
 Query:
 
     {"user_id": 42}
-    // SELECT * FROM `users` WHERE (`user_id` = 42)
     {"user_id": "42"}
     // SELECT * FROM `users` WHERE (`user_id` = 42)
     {"user_id": "jysperm"}
@@ -94,7 +93,6 @@ Query:
     {"role": 'admin'}
     // SELECT * FROM `users` WHERE (`role` = 'admin')
     {"role": ["admin", "user"]}
-    // SELECT * FROM `users` WHERE (`role` IN ('admin', 'user'))
     {"role": "admin, user"}
     // SELECT * FROM `users` WHERE (`role` IN ('admin', 'user'))
     {"role": "root, admin"}
@@ -117,4 +115,24 @@ Query:
     // SELECT * FROM `users` WHERE (`updated_at` > DATE_SUB(NOW(), INTERVAL 1 DAY))
     {"activity": "last_day, last_week"}
     // SELECT * FROM `users` WHERE ((`updated_at` > DATE_SUB(NOW(), INTERVAL 1 DAY)) OR (`updated_at` < DATE_SUB(NOW(), INTERVAL 1 WEEK)))
+
+## Datetime
+
+Querier:
+
+    userQuerier = querier 'users',
+      created_at:
+        date: true
+
+Query:
+
+    {"created_at": "2015-03-01~2015-03-30"}
+    // SELECT * FROM `users` WHERE (`created_at` BETWEEN '2015-03-01 00:00:00.000' AND '2015-03-30 00:00:00.000')
+    {"created_at": "2015-03-01~"}
+    // SELECT * FROM `users` WHERE (`created_at` >= '2015-03-01 00:00:00.000')
+    {"created_at": "~2015-03-30"}
+    // SELECT * FROM `users` WHERE (`created_at` =< '2015-03-30 00:00:00.000')
+    {"created_at": "invalid~date"}
+    {}
+    // SELECT * FROM `users`
 
