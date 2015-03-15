@@ -5,12 +5,25 @@ querierTester = ->
     tableQuerier(query).should.equal sql
 
 describe 'querier', ->
+  it 'string', ->
+    test = querierTester 'users',
+      name:
+        string: true
+
+    test {}, 'SELECT * FROM `users`'
+
+    test
+      name: 'jysperm'
+    , "SELECT * FROM `users` WHERE (`name` = 'jysperm')"
+
+    test
+      name: "jysperm's blog"
+    , "SELECT * FROM `users` WHERE (`name` = 'jysperm\\'s blog')"
+
   it 'number', ->
     test = querierTester 'users',
       user_id:
         number: true
-
-    test {}, 'SELECT * FROM `users`'
 
     test
       user_id: 42
@@ -23,6 +36,19 @@ describe 'querier', ->
     test
       user_id: 'jysperm'
     , 'SELECT * FROM `users`'
+
+    test = querierTester 'users',
+      user_id:
+        multi: true
+        number: true
+
+    test
+      user_id: [1, 2]
+    , 'SELECT * FROM `users` WHERE (`user_id` IN (1, 2))'
+
+    test
+      user_id: '3, 4, jysperm'
+    , 'SELECT * FROM `users` WHERE (`user_id` IN (3, 4))'
 
   it 'boolean', ->
     test = querierTester 'users',

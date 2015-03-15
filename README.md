@@ -15,6 +15,23 @@ Use simple JSON to query from MySQL, and prevent SQL-injection attacks
       mysql.query userQuerier(req.query), (err, rows) ->
         res.json rows
 
+## String
+
+Querier:
+
+    userQuerier = querier 'users',
+      name:
+        string: true
+
+Query:
+
+    {}
+    // SELECT * FROM `users`
+    {"name": "jysperm"}
+    // SELECT * FROM `users` WHERE (`name` = 'jysperm')
+    {"name": "jysperm's blog"}
+    // SELECT * FROM `users` WHERE (`name` = 'jysperm\'s blog')
+
 ## Number
 
 Querier:
@@ -25,14 +42,26 @@ Querier:
 
 Query:
 
-    {}
-    // SELECT * FROM `users`
     {"user_id": 42}
     // SELECT * FROM `users` WHERE (`user_id` = 42)
     {"user_id": "42"}
     // SELECT * FROM `users` WHERE (`user_id` = 42)
     {"user_id": "jysperm"}
     // ignored, SELECT * FROM `users`
+
+Querier:
+
+    userQuerier = querier 'users',
+      user_id:
+        multi: true
+        number: true
+
+Query:
+
+    {"user_id": [1, 2]}
+    // SELECT * FROM `users` WHERE (`user_id` IN (1, 2))
+    {"user_id": "3, 4, jysperm"}
+    // SELECT * FROM `users` WHERE (`user_id` IN (3, 4))
 
 ## Boolean
 

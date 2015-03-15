@@ -18,7 +18,28 @@ module.exports = (table, schema, options) ->
       if value == undefined
         return
 
-      if definition.bool
+      if definition.string
+        whereAnd "`#{field}` = #{escape value}"
+
+      else if definition.number
+        if _.isFinite value
+          whereAnd "`#{field}` = #{escape parseInt value}"
+        else if definition.multi
+          if _.isArray value
+            values = value
+          else
+            values = value.split(',').map (value) -> parseInt value.trim()
+
+          values = _.compact values.map (value) ->
+            if _.isFinite value
+              return escape value
+            else
+              return null
+
+          unless _.isEmpty values
+            whereAnd "`#{field}` IN (#{values.join ', '})"
+
+      else if definition.bool
         if value in ['true', 'false']
           value = value == 'true'
         else if value in ['TRUE', 'FALSE']
@@ -27,10 +48,6 @@ module.exports = (table, schema, options) ->
           value = !! value
 
         whereAnd "`#{field}` = #{escape value}"
-
-      else if definition.number
-        if _.isFinite value
-          whereAnd "`#{field}` = #{escape parseInt value}"
 
       else if definition.enum
         if value in definition.enum
