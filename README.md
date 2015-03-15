@@ -55,8 +55,8 @@ Querier:
 
     userQuerier = querier 'users',
       role:
-        enum: ['admin', 'user']
         multi: true
+        enum: ['admin', 'user']
 
 Query:
 
@@ -70,4 +70,22 @@ Query:
     // SELECT * FROM `users` WHERE (`role` IN ('admin', 'user'))
     {"role": "root, admin"}
     // SELECT * FROM `users` WHERE (`role` IN ('admin'))
+
+## Enum with SQL
+
+Querier:
+
+    userQuerier = querier 'users',
+      activity:
+        multi: true
+        enum_sql:
+          last_day: '`updated_at` > DATE_SUB(NOW(), INTERVAL 1 DAY)'
+          last_week: '`updated_at` < DATE_SUB(NOW(), INTERVAL 1 WEEK)'
+
+Query:
+
+    {"activity": "last_day"}
+    // SELECT * FROM `users` WHERE (`updated_at` > DATE_SUB(NOW(), INTERVAL 1 DAY))
+    {"activity": "last_day, last_week"}
+    // SELECT * FROM `users` WHERE ((`updated_at` > DATE_SUB(NOW(), INTERVAL 1 DAY)) OR (`updated_at` < DATE_SUB(NOW(), INTERVAL 1 WEEK)))
 

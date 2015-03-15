@@ -50,8 +50,25 @@ module.exports = (table, schema, options) ->
           unless _.isEmpty values
             whereAnd "`#{field}` IN (#{values.join ', '})"
 
+      else if definition.enum_sql
+        if value in _.keys definition.enum_sql
+          whereAnd definition.enum_sql[value]
+        else if definition.multi
+          if _.isArray value
+            values = value
+          else
+            values = value.split(',').map (value) -> value.trim()
+
+          conditions = _.compact values.map (value) ->
+            if value in _.keys definition.enum_sql
+              return "(#{definition.enum_sql[value]})"
+            else
+              return null
+
+          unless _.isEmpty conditions
+            whereAnd conditions.join ' OR '
+
       # date
-      # enum_sql
       # search
       # sort
       # pagination
