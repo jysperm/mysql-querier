@@ -184,5 +184,6 @@ Query:
     // SELECT * FROM `users` LIMIT 10
     {"limit": 10, "offset": 20}
     // SELECT * FROM `users` LIMIT 10 OFFSET 20
+    {}
     {"limit": 50}
     // SELECT * FROM `users` LIMIT 30

@@ -5,35 +5,6 @@ module.exports = (table, schema, options) ->
   return (query) ->
     where_sql = ''
 
-    if query.order_by and query.order_by[... 1] in ['+', '-']
-      desc = query.order_by[... 1] == '-'
-      order_field = query.order_by[1 ...]
-    else
-      order_field = query.order_by
-
-    if order_field in (options?.sortable ? [])
-      order_by_sql = "ORDER BY #{escapeIdentifier order_field}#{if desc then ' DESC' else ''}"
-    else
-      order_by_sql = ''
-
-    limit_sql = ''
-
-    if _.isFinite query.limit
-      limit = Math.min (options?.max_limit ? Infinity), parseInt query.limit
-      limit_sql = "LIMIT #{escape limit}"
-    else if options?.limit and options.max_limit < Infinity
-      limit_sql = "LIMIT #{escape options.limit}"
-    else
-      limit_sql = ''
-
-    if _.isFinite query.offset
-      offset = parseInt query.offset
-
-      if limit_sql
-        limit_sql = "#{limit_sql} OFFSET #{escape offset}"
-      else
-        limit_sql = "OFFSET #{escape offset}"
-
     whereAnd = (condition) ->
       if where_sql
         where_sql = "#{where_sql} AND (#{condition})"
@@ -55,19 +26,14 @@ module.exports = (table, schema, options) ->
         if _.isFinite value
           whereAnd "#{escaped_field} = #{escape parseInt value}"
         else if definition.multi
-          if _.isArray value
-            values = value
-          else
-            values = value.split(',').map (value) -> parseInt value.trim()
-
-          values = _.compact values.map (value) ->
+          numbers = splitToArray value, (value) ->
             if _.isFinite value
-              return escape value
+              return escape parseInt value
             else
               return null
 
-          unless _.isEmpty values
-            whereAnd "#{escaped_field} IN (#{values.join ', '})"
+          unless _.isEmpty numbers
+            whereAnd "#{escaped_field} IN (#{numbers.join ', '})"
 
       else if definition.bool
         if value in ['true', 'false']
@@ -83,12 +49,7 @@ module.exports = (table, schema, options) ->
         if value in definition.enum
           whereAnd "#{escaped_field} = #{escape value}"
         else if definition.multi
-          if _.isArray value
-            values = value
-          else
-            values = value.split(',').map (value) -> value.trim()
-
-          values = _.compact values.map (value) ->
+          values = splitToArray value, (value) ->
             if value in definition.enum
               return escape value
             else
@@ -101,12 +62,7 @@ module.exports = (table, schema, options) ->
         if value in _.keys definition.enum_sql
           whereAnd definition.enum_sql[value]
         else if definition.multi
-          if _.isArray value
-            values = value
-          else
-            values = value.split(',').map (value) -> value.trim()
-
-          conditions = _.compact values.map (value) ->
+          conditions = splitToArray value, (value) ->
             if value in _.keys definition.enum_sql
               return "(#{definition.enum_sql[value]})"
             else
@@ -135,6 +91,9 @@ module.exports = (table, schema, options) ->
 
         unless _.isEmpty conditions
           whereAnd conditions.join ' OR '
+
+    order_by_sql = orderByClause query, options
+    limit_sql = limitClause query, options
 
     return _.compact([
       "SELECT * FROM #{escapeIdentifier table}", where_sql, order_by_sql, limit_sql
@@ -174,3 +133,46 @@ escape = (value) ->
 
   else
     throw new Error "Can't escape #{value}"
+
+splitToArray = (value, filter) ->
+  if _.isArray value
+    values = value
+  else if _.isString value
+    values = value.split(',').map (value) -> value.trim()
+  else
+    return []
+
+  return _.compact values.map filter
+
+orderByClause = ({order_by}, options) ->
+  options ?=
+    sortable: []
+
+  if order_by and order_by[... 1] in ['+', '-']
+    desc = order_by[... 1] == '-'
+    order_field = order_by[1 ...]
+  else
+    order_field = order_by
+
+  if order_field in (options.sortable ? [])
+    return "ORDER BY #{escapeIdentifier order_field}#{if desc then ' DESC' else ''}"
+  else
+    return ''
+
+limitClause = ({limit, offset}, options) ->
+  options ?=
+    max_limit: Infinity
+
+  limit_sql = ''
+  offset_sql = ''
+
+  if _.isFinite limit
+    limit = Math.min options.max_limit, parseInt limit
+    limit_sql = "LIMIT #{escape limit}"
+  else if options.max_limit < Infinity
+    limit_sql = "LIMIT #{escape options.max_limit}"
+
+  if _.isFinite offset
+    offset_sql = "OFFSET #{escape parseInt offset}"
+
+  return [limit_sql, offset_sql].join(' ').trim()

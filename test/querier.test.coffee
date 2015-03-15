@@ -173,6 +173,8 @@ describe 'querier', ->
       offset: 20
     , 'SELECT * FROM `users` LIMIT 10 OFFSET 20'
 
+    test {}, 'SELECT * FROM `users` LIMIT 30'
+
     test
       limit: 50
     , 'SELECT * FROM `users` LIMIT 30'
