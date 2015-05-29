@@ -188,7 +188,7 @@ Query:
     {"limit": 50}
     // SELECT * FROM `users` LIMIT 30
 
-## Fields
+## Fields & Count
 
 Querier:
 
@@ -202,3 +202,5 @@ Query:
 
     {}
     // SELECT `username`, `role` FROM `users`
+    {"count:*": true}
+    // SELECT COUNT(*) FROM `users`

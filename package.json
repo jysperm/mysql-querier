@@ -1,6 +1,6 @@
 {
   "name": "mysql-querier",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Use simple JSON to query from MySQL, and prevent SQL-injection attacks",
   "license": "MIT",
   "repository": {
@@ -15,7 +15,7 @@
     }
   ],
   "scripts": {
-    "test": "./node_modules/.bin/gulp test"
+    "test": "gulp test"
   },
   "dependencies": {
     "coffee-script": "^1.7.1",

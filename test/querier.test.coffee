@@ -187,3 +187,17 @@ describe 'querier', ->
       fields: ['username', 'role']
 
     test {}, 'SELECT `username`, `role` FROM `users`'
+
+  it 'count', ->
+    test = querierTester 'users',
+      role:
+        enum: ['admin', 'user']
+
+    test
+      'count:*': true
+    , 'SELECT COUNT(*) FROM `users`'
+
+    test
+      role: 'user'
+      'count:*': true
+    , "SELECT COUNT(*) FROM `users` WHERE (`role` = 'user')"

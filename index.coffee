@@ -149,7 +149,9 @@ splitToArray = (value, filter) ->
 selectClause = (query, {table, fields}) ->
   table = escapeIdentifier table
 
-  if fields?.length > 0
+  if query['count:*']
+    return "SELECT COUNT(*) FROM #{table}"
+  else if fields?.length > 0
     fields = fields.map escapeIdentifier
     return "SELECT #{fields.join ', '} FROM #{table}"
   else
