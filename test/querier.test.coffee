@@ -192,6 +192,8 @@ describe 'querier', ->
     test = querierTester 'users',
       role:
         enum: ['admin', 'user']
+    ,
+      max_limit: 30
 
     test
       'count:*': true

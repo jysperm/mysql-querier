@@ -3,6 +3,7 @@
 /npm-debug.log
 /.idea
 *~
+.remote-sync.json
 .DS_Store
 /api.json
 /docs

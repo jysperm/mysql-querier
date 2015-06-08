@@ -169,9 +169,14 @@ orderByClause = ({order_by}, {sortable}) ->
   else
     return ''
 
-limitClause = ({limit, offset}, {max_limit}) ->
+limitClause = (query, {max_limit}) ->
+  {limit, offset} = query
+
   limit_sql = ''
   offset_sql = ''
+
+  if query?['count:*']
+    max_limit = Infinity
 
   if _.isFinite limit
     limit = Math.min (max_limit ? Infinity), parseInt limit

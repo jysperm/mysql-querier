@@ -1,6 +1,6 @@
 {
   "name": "mysql-querier",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Use simple JSON to query from MySQL, and prevent SQL-injection attacks",
   "license": "MIT",
   "repository": {
