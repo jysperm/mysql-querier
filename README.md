@@ -131,7 +131,7 @@ Query:
     {"created_at": "2015-03-01~"}
     // SELECT * FROM `users` WHERE (`created_at` >= '2015-03-01 00:00:00.000')
     {"created_at": "~2015-03-30"}
-    // SELECT * FROM `users` WHERE (`created_at` =< '2015-03-30 00:00:00.000')
+    // SELECT * FROM `users` WHERE (`created_at` <= '2015-03-30 00:00:00.000')
     {"created_at": "invalid~date"}
     {}
     // SELECT * FROM `users`

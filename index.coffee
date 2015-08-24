@@ -85,7 +85,7 @@ module.exports = (table, schema, options) ->
         else if from
           whereAnd "#{escaped_field} >= #{from}"
         else if to
-          whereAnd "#{escaped_field} =< #{to}"
+          whereAnd "#{escaped_field} <= #{to}"
 
       else if definition.search
         conditions = definition.search.map (field) ->
