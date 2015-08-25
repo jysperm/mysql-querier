@@ -40,6 +40,7 @@ describe 'querier', ->
     test = querierTester 'users',
       user_id:
         multi: true
+        range: true
         number: true
 
     test
@@ -49,6 +50,14 @@ describe 'querier', ->
     test
       user_id: '3, 4, jysperm'
     , 'SELECT * FROM `users` WHERE (`user_id` IN (3, 4))'
+
+    test
+      user_id: '~4'
+    , 'SELECT * FROM `users` WHERE (`user_id` <= 4)'
+
+    test
+      user_id: '2~4'
+    , 'SELECT * FROM `users` WHERE (`user_id` BETWEEN 2 AND 4)'
 
   it 'boolean', ->
     test = querierTester 'users',

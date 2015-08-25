@@ -27,6 +27,18 @@ module.exports = (table, schema, options) ->
       else if definition.number
         if _.isFinite value
           whereAnd "#{escaped_field} = #{escape parseInt value}"
+        else if definition.range and _.isString(value) and '~' in value
+          [from, to] = value.split('~').map (value) ->
+            if _.isFinite parseInt value
+              return parseInt value
+
+          if from and to
+            whereAnd "#{escaped_field} BETWEEN #{from} AND #{to}"
+          else if from
+            whereAnd "#{escaped_field} >= #{from}"
+          else if to
+            whereAnd "#{escaped_field} <= #{to}"
+
         else if definition.multi
           numbers = splitToArray value, (value) ->
             if _.isFinite value

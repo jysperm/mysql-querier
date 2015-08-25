@@ -53,6 +53,7 @@ Querier:
     userQuerier = querier 'users',
       user_id:
         multi: true
+        range: true
         number: true
 
 Query:
@@ -61,6 +62,10 @@ Query:
     // SELECT * FROM `users` WHERE (`user_id` IN (1, 2))
     {"user_id": "3, 4, jysperm"}
     // SELECT * FROM `users` WHERE (`user_id` IN (3, 4))
+    {"user_id": "~4"}
+    // SELECT * FROM `users` WHERE (`user_id` <= 4)
+    {"user_id": "2~4"}
+    // SELECT * FROM `users` WHERE (`user_id` BETWEEN 2 AND 4)
 
 ## Boolean
 
