@@ -30,7 +30,7 @@ module.exports = (table, schema, options) ->
         else if definition.range and _.isString(value) and '~' in value
           [from, to] = value.split('~').map (value) ->
             if _.isFinite parseInt value
-              return parseInt value
+              return escape parseInt value
 
           if from and to
             whereAnd "#{escaped_field} BETWEEN #{from} AND #{to}"
